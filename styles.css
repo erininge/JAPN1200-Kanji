@@ -196,6 +196,14 @@ kbd{
   align-items:flex-start;
 }
 .mcBtn:hover{background: rgba(255,255,255,.08)}
+.mcBtn.correct{
+  border-color: rgba(52, 211, 153, 0.7);
+  background: rgba(52, 211, 153, 0.12);
+}
+.mcBtn.wrong{
+  border-color: rgba(248, 113, 113, 0.7);
+  background: rgba(248, 113, 113, 0.12);
+}
 .mcLbl{
   width:28px; height:28px;
   border-radius:10px;
@@ -213,6 +221,10 @@ kbd{
 }
 .feedback.good{color:var(--good)}
 .feedback.bad{color:var(--bad)}
+.answerActions{
+  justify-content:flex-end;
+  margin-top:6px;
+}
 .list{
   display:flex;
   flex-direction:column;
