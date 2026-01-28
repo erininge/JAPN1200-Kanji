@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "S1-016",
+      "kanji": "日",
+      "meaning": "day; sun",
+      "readings": [
+        "にち",
+        "じつ",
+        "ひ",
+        "か"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-017",
+      "kanji": "本",
+      "meaning": "book; basis",
+      "readings": [
+        "ほん",
+        "もと"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-018",
+      "kanji": "人",
+      "meaning": "person",
+      "readings": [
+        "じん",
+        "にん",
+        "ひと"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-019",
+      "kanji": "月",
+      "meaning": "moon; month",
+      "readings": [
+        "げつ",
+        "がつ",
+        "つき"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-020",
+      "kanji": "火",
+      "meaning": "fire",
+      "readings": [
+        "か",
+        "ひ"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-021",
+      "kanji": "水",
+      "meaning": "water",
+      "readings": [
+        "すい",
+        "みず"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-025",
+      "kanji": "曜",
+      "meaning": "weekday",
+      "readings": [
+        "よう"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-026",
+      "kanji": "上",
+      "meaning": "up; above",
+      "readings": [
+        "じょう",
+        "うえ",
+        "のぼ(る)"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-027",
+      "kanji": "下",
+      "meaning": "down; below",
+      "readings": [
+        "か",
+        "した",
+        "くだ(る)"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-028",
+      "kanji": "中",
+      "meaning": "middle; inside",
+      "readings": [
+        "ちゅう",
+        "じゅう",
+        "なか"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-029",
+      "kanji": "半",
+      "meaning": "half",
+      "readings": [
+        "はん"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    }
+  ]
+}
