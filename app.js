@@ -186,6 +186,7 @@
       mcPack.options.forEach((opt, i) => {
         const btn = document.createElement("button");
         btn.className = "mcBtn";
+        btn.dataset.option = opt;
         btn.innerHTML = `<div class="mcLbl">${labels[i]||""}</div><div class="mcText">${escapeHtml(opt)}</div>`;
         btn.addEventListener("click", () => checkMC(i, mcPack));
         host.appendChild(btn);
@@ -240,31 +241,49 @@
     const chosen = pack.options[i];
     const ok = chosen === pack.correct;
     locked = true;
+    const buttons = $$("#mcGrid .mcBtn");
+    buttons.forEach(btn => {
+      const opt = btn.dataset.option;
+      if (opt === pack.correct) btn.classList.add("correct");
+    });
     if (ok) {
       streak += 1;
       stats.streakBest = Math.max(stats.streakBest, streak);
       markFeedback(true);
     } else {
       streak = 0;
+      const wrongBtn = buttons.find(btn => btn.dataset.option === chosen);
+      if (wrongBtn) wrongBtn.classList.add("wrong");
       markFeedback(false, `Answer: ${pack.correct}`);
     }
     markStat(current.id, current.section, ok);
 
     const instant = $("#chkInstantNext").checked;
     if (ok && instant) {
-      idx += 1; locked = false; nextQuestion();
+      setTimeout(() => {
+        idx += 1; locked = false; nextQuestion();
+      }, 650);
     } else {
       $("#btnNext").disabled = false;
     }
   }
 
+  function splitMeanings(meaning) {
+    return String(meaning)
+      .split(";")
+      .map(part => part.trim())
+      .filter(Boolean);
+  }
   function normalizeTyping(s) { return String(s).trim().replace(/\s+/g," ").toLowerCase(); }
   function checkTyping() {
     if (!session || locked) return;
     const mode = session.curMode;
     const expected = mode === "k2m" ? current.meaning : current.kanji;
     const got = $("#typingInput").value;
-    const ok = normalizeTyping(got) === normalizeTyping(expected);
+    const normalized = normalizeTyping(got);
+    const ok = mode === "k2m"
+      ? splitMeanings(expected).some(part => normalizeTyping(part) === normalized)
+      : normalizeTyping(expected) === normalized;
     locked = true;
     if (ok) {
       streak += 1;
