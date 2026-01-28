@@ -6,12 +6,14 @@
     stars: "j1200k_stars_v1",
     stats: "j1200k_stats_v1",
     settings: "j1200k_settings_v1",
-    data: "j1200k_data_v1"
+    data: "j1200k_data_v1",
+    multiTypingOff: "j1200k_multi_typing_off_v1"
   };
 
   const defaultSettings = () => ({
     showReadings: "off",
-    mcCount: 4
+    mcCount: 4,
+    multiTyping: "on"
   });
 
   function loadJSON(key, fallback) {
@@ -67,6 +69,7 @@
   }
 
   let settings = loadJSON(STORAGE.settings, defaultSettings());
+  let multiTypingOff = new Set(loadJSON(STORAGE.multiTypingOff, []));
 
   function setTab(tab) {
     $$(".tab").forEach(b => {
@@ -143,7 +146,10 @@
     $("#studySetup").classList.remove("hidden");
     $("#studySession").classList.add("hidden");
     $("#feedback").textContent = ""; $("#feedback").className = "feedback";
-    $("#btnNext").disabled = true; $("#typingInput").value = ""; locked = false;
+    $("#btnNext").disabled = true;
+    const inputs = $$("#typingInputs input");
+    inputs.forEach(input => { input.value = ""; });
+    locked = false;
   }
 
   function setPrompt(mode, item) {
@@ -175,7 +181,6 @@
     $("#typingArea").classList.toggle("hidden", answerType !== "typing");
 
     $("#btnNext").disabled = true;
-    $("#typingInput").value = "";
     $("#feedback").textContent = "";
     $("#feedback").className = "feedback";
     locked = false;
@@ -192,7 +197,7 @@
         host.appendChild(btn);
       });
     } else {
-      $("#typingInput").focus();
+      renderTypingInputs();
     }
   }
 
@@ -274,16 +279,52 @@
       .map(part => part.trim())
       .filter(Boolean);
   }
+  function hasMultipleMeanings(item) { return splitMeanings(item.meaning).length > 1; }
+  function isMultiTypingActive(item, mode) {
+    if (mode !== "k2m") return false;
+    if (settings.multiTyping !== "on") return false;
+    if (!hasMultipleMeanings(item)) return false;
+    return !multiTypingOff.has(item.id);
+  }
   function normalizeTyping(s) { return String(s).trim().replace(/\s+/g," ").toLowerCase(); }
+  function renderTypingInputs() {
+    const host = $("#typingInputs");
+    host.innerHTML = "";
+    const mode = session?.curMode;
+    const useMulti = current && isMultiTypingActive(current, mode);
+    const inputsNeeded = useMulti ? splitMeanings(current.meaning).length : 1;
+    for (let i = 0; i < inputsNeeded; i += 1) {
+      const input = document.createElement("input");
+      input.className = "typingInput";
+      input.autocomplete = "off";
+      input.autocorrect = "off";
+      input.autocapitalize = "off";
+      input.spellcheck = false;
+      input.placeholder = inputsNeeded > 1 ? `Answer ${i + 1}` : "Type your answer…";
+      host.appendChild(input);
+    }
+    const first = host.querySelector("input");
+    if (first) first.focus();
+  }
   function checkTyping() {
     if (!session || locked) return;
     const mode = session.curMode;
     const expected = mode === "k2m" ? current.meaning : current.kanji;
-    const got = $("#typingInput").value;
-    const normalized = normalizeTyping(got);
-    const ok = mode === "k2m"
-      ? splitMeanings(expected).some(part => normalizeTyping(part) === normalized)
-      : normalizeTyping(expected) === normalized;
+    let ok = false;
+    if (mode === "k2m" && isMultiTypingActive(current, mode)) {
+      const expectedParts = splitMeanings(expected).map(part => normalizeTyping(part));
+      const inputs = $$("#typingInputs input").map(input => normalizeTyping(input.value));
+      const uniqueInputs = new Set(inputs.filter(Boolean));
+      ok = inputs.length === expectedParts.length
+        && inputs.every(val => expectedParts.includes(val))
+        && uniqueInputs.size === expectedParts.length;
+    } else {
+      const got = $$("#typingInputs input")[0]?.value || "";
+      const normalized = normalizeTyping(got);
+      ok = mode === "k2m"
+        ? splitMeanings(expected).some(part => normalizeTyping(part) === normalized)
+        : normalizeTyping(expected) === normalized;
+    }
     locked = true;
     if (ok) {
       streak += 1;
@@ -348,6 +389,8 @@
       );
     }
     list.forEach(x => {
+      const showMultiToggle = hasMultipleMeanings(x);
+      const multiEnabled = showMultiToggle && !multiTypingOff.has(x.id);
       const row = document.createElement("div");
       row.className = "itemRow";
       row.innerHTML = `
@@ -356,11 +399,26 @@
           <div>
             <div class="meaning">${escapeHtml(x.meaning)}</div>
             <div class="tags">Section ${x.section} • ${escapeHtml(x.category || "")}</div>
+            ${showMultiToggle ? `
+            <label class="mini multiToggle">
+              <input type="checkbox" class="multiToggleInput" data-id="${escapeHtml(x.id)}" ${multiEnabled ? "checked" : ""} />
+              Multi typing answers
+            </label>` : ""}
           </div>
         </div>
         <button class="btn starBtn">${isStarred(x.id) ? "★" : "☆"}</button>
       `;
       row.querySelector("button").addEventListener("click", () => toggleStar(x.id));
+      const toggle = row.querySelector(".multiToggleInput");
+      if (toggle) {
+        toggle.addEventListener("change", (e) => {
+          const id = e.target.dataset.id;
+          if (!id) return;
+          if (e.target.checked) multiTypingOff.delete(id);
+          else multiTypingOff.add(id);
+          saveJSON(STORAGE.multiTypingOff, Array.from(multiTypingOff));
+        });
+      }
       host.appendChild(row);
     });
     if (!list.length) host.innerHTML = `<div class="hint"><p class="small muted">No results.</p></div>`;
@@ -459,9 +517,11 @@
   function renderSettings() {
     $("#selReadings").value = settings.showReadings || "off";
     $("#selMcCount").value = String(settings.mcCount || 4);
+    $("#selMultiTyping").value = settings.multiTyping || "on";
   }
   $("#selReadings").addEventListener("change", (e) => { settings.showReadings = e.target.value; saveJSON(STORAGE.settings, settings); });
   $("#selMcCount").addEventListener("change", (e) => { settings.mcCount = parseInt(e.target.value,10); saveJSON(STORAGE.settings, settings); });
+  $("#selMultiTyping").addEventListener("change", (e) => { settings.multiTyping = e.target.value; saveJSON(STORAGE.settings, settings); });
 
   $("#btnExportData").addEventListener("click", () => {
     const payload = { version:1, items };
