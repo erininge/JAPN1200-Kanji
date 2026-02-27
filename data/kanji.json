@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "items": [
     {
       "id": "S1-016",
@@ -123,6 +123,71 @@
       "meaning": "half",
       "readings": [
         "はん"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-032",
+      "kanji": "元",
+      "meaning": "origin",
+      "readings": [
+        "げん",
+        "がん",
+        "もと"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-033",
+      "kanji": "気",
+      "meaning": "spirit",
+      "readings": [
+        "き"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-034",
+      "kanji": "天",
+      "meaning": "heaven",
+      "readings": [
+        "てん"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-035",
+      "kanji": "田",
+      "meaning": "rice field",
+      "readings": [
+        "た",
+        "だ"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-036",
+      "kanji": "女",
+      "meaning": "woman",
+      "readings": [
+        "じょ",
+        "おんな"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-037",
+      "kanji": "男",
+      "meaning": "man",
+      "readings": [
+        "だん",
+        "おとこ"
       ],
       "section": 1,
       "category": "Section 1"
