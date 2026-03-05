@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "items": [
     {
       "id": "S1-016",
@@ -188,6 +188,28 @@
       "readings": [
         "だん",
         "おとこ"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-042",
+      "kanji": "食",
+      "meaning": "eat; food",
+      "readings": [
+        "しょく",
+        "た(べる)"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-043",
+      "kanji": "飲",
+      "meaning": "drink",
+      "readings": [
+        "いん",
+        "の(む)"
       ],
       "section": 1,
       "category": "Section 1"
