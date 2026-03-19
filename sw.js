@@ -1,4 +1,4 @@
-const CACHE = "japn1200-kanji-v1.0.4-4ad91c2f38";
+const CACHE = "japn1200-kanji-v1.0.5-a7f3c9d62e";
 const ASSETS = [
   "./",
   "./index.html",
@@ -22,12 +22,45 @@ self.addEventListener("activate", (e) => {
   );
 });
 
+self.addEventListener("message", (e) => {
+  if (e.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+    return;
+  }
+  if (e.data?.type === "FORCE_REFRESH") {
+    e.waitUntil(
+      caches.keys()
+        .then(keys => Promise.all(keys.map(k => caches.delete(k))))
+        .then(() => self.clients.matchAll({ includeUncontrolled: true, type: "window" }))
+        .then(clients => Promise.all(clients.map(client => client.navigate(client.url))))
+    );
+  }
+});
+
 self.addEventListener("fetch", (e) => {
+  if (e.request.method !== "GET") return;
+
+  if (e.request.mode === "navigate") {
+    e.respondWith(
+      fetch(e.request)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE).then(c => c.put("./index.html", copy)).catch(()=>{});
+          return res;
+        })
+        .catch(() => caches.match("./index.html"))
+    );
+    return;
+  }
+
   e.respondWith(
-    caches.match(e.request).then(hit => hit || fetch(e.request).then(res => {
-      const copy = res.clone();
-      caches.open(CACHE).then(c => c.put(e.request, copy)).catch(()=>{});
-      return res;
-    }).catch(()=>caches.match("./index.html")))
+    caches.match(e.request).then(hit => {
+      const networkFetch = fetch(e.request).then(res => {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, copy)).catch(()=>{});
+        return res;
+      });
+      return hit || networkFetch;
+    }).catch(() => caches.match("./index.html"))
   );
 });

@@ -29,6 +29,7 @@
 
   let DATA = null;
   let items = [];
+  let swReg = null;
   async function loadData() {
     const stored = loadJSON(STORAGE.data, null);
     if (stored && stored.items) return stored;
@@ -564,14 +565,61 @@
     });
   }
 
+  async function forceRefreshApp() {
+    const btn = $("#btnRefreshApp");
+    if (btn) btn.disabled = true;
+    try {
+      if (!("serviceWorker" in navigator)) {
+        location.reload();
+        return;
+      }
+
+      if (!swReg) swReg = await navigator.serviceWorker.getRegistration();
+      if (swReg?.waiting) {
+        swReg.waiting.postMessage({ type: "SKIP_WAITING" });
+        return;
+      }
+
+      if (navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({ type: "FORCE_REFRESH" });
+      }
+      if (swReg) await swReg.update();
+      setTimeout(() => location.reload(), 350);
+    } catch {
+      location.reload();
+    } finally {
+      setTimeout(() => { if (btn) btn.disabled = false; }, 1200);
+    }
+  }
+
   async function init() {
     DATA = await loadData();
     items = DATA.items || [];
     renderSections();
     $("#chkAuto").dispatchEvent(new Event("change"));
     setTab("study");
+    const refreshBtn = $("#btnRefreshApp");
+    if (refreshBtn) refreshBtn.addEventListener("click", () => forceRefreshApp());
     if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        window.location.reload();
+      });
+      window.addEventListener("load", async () => {
+        try {
+          swReg = await navigator.serviceWorker.register("sw.js");
+          if (swReg.waiting) swReg.waiting.postMessage({ type: "SKIP_WAITING" });
+          swReg.addEventListener("updatefound", () => {
+            const installing = swReg.installing;
+            if (!installing) return;
+            installing.addEventListener("statechange", () => {
+              if (installing.state === "installed" && navigator.serviceWorker.controller) {
+                installing.postMessage({ type: "SKIP_WAITING" });
+              }
+            });
+          });
+          await swReg.update();
+        } catch {}
+      });
     }
   }
   init();
