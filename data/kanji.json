@@ -1,6 +1,160 @@
 {
-  "version": 3,
+  "version": 4,
   "items": [
+    {
+      "id": "S1-001",
+      "kanji": "一",
+      "meaning": "one",
+      "readings": [
+        "いち",
+        "いっ"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-002",
+      "kanji": "二",
+      "meaning": "two",
+      "readings": [
+        "に"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-003",
+      "kanji": "三",
+      "meaning": "three",
+      "readings": [
+        "さん"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-004",
+      "kanji": "四",
+      "meaning": "four",
+      "readings": [
+        "し",
+        "よん"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-005",
+      "kanji": "五",
+      "meaning": "five",
+      "readings": [
+        "ご"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-006",
+      "kanji": "六",
+      "meaning": "six",
+      "readings": [
+        "ろく"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-007",
+      "kanji": "七",
+      "meaning": "seven",
+      "readings": [
+        "しち",
+        "なな"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-008",
+      "kanji": "八",
+      "meaning": "eight",
+      "readings": [
+        "はち"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-009",
+      "kanji": "九",
+      "meaning": "nine",
+      "readings": [
+        "きゅう",
+        "く"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-010",
+      "kanji": "十",
+      "meaning": "ten",
+      "readings": [
+        "じゅう"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-011",
+      "kanji": "百",
+      "meaning": "hundred",
+      "readings": [
+        "ひゃく"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-012",
+      "kanji": "千",
+      "meaning": "thousand",
+      "readings": [
+        "せん"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-013",
+      "kanji": "万",
+      "meaning": "ten thousand",
+      "readings": [
+        "まん"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-014",
+      "kanji": "円",
+      "meaning": "circle; yen",
+      "readings": [
+        "えん"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-015",
+      "kanji": "時",
+      "meaning": "time; hour",
+      "readings": [
+        "じ"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
     {
       "id": "S1-016",
       "kanji": "日",
@@ -72,6 +226,39 @@
       "category": "Section 1"
     },
     {
+      "id": "S1-022",
+      "kanji": "木",
+      "meaning": "tree; wood",
+      "readings": [
+        "もく",
+        "き"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-023",
+      "kanji": "金",
+      "meaning": "gold; money",
+      "readings": [
+        "きん",
+        "かね"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-024",
+      "kanji": "土",
+      "meaning": "earth; soil",
+      "readings": [
+        "ど",
+        "つち"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
       "id": "S1-025",
       "kanji": "曜",
       "meaning": "weekday",
@@ -123,6 +310,28 @@
       "meaning": "half",
       "readings": [
         "はん"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-030",
+      "kanji": "山",
+      "meaning": "mountain",
+      "readings": [
+        "さん",
+        "やま"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-031",
+      "kanji": "川",
+      "meaning": "river",
+      "readings": [
+        "かわ",
+        "がわ"
       ],
       "section": 1,
       "category": "Section 1"
@@ -188,6 +397,51 @@
       "readings": [
         "だん",
         "おとこ"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-038",
+      "kanji": "私",
+      "meaning": "I; private",
+      "readings": [
+        "し",
+        "わたし"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-039",
+      "kanji": "今",
+      "meaning": "now",
+      "readings": [
+        "こん",
+        "いま"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-040",
+      "kanji": "見",
+      "meaning": "see",
+      "readings": [
+        "けん",
+        "み(る)"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-041",
+      "kanji": "行",
+      "meaning": "go",
+      "readings": [
+        "こう",
+        "ぎょう",
+        "い(く)"
       ],
       "section": 1,
       "category": "Section 1"
