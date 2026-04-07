@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "items": [
     {
       "id": "S1-001",
@@ -464,6 +464,51 @@
       "readings": [
         "いん",
         "の(む)"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-044",
+      "kanji": "東",
+      "meaning": "east",
+      "readings": [
+        "とう",
+        "ひがし"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-045",
+      "kanji": "西",
+      "meaning": "west",
+      "readings": [
+        "せい",
+        "さい",
+        "にし"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-046",
+      "kanji": "南",
+      "meaning": "south",
+      "readings": [
+        "なん",
+        "みなみ"
+      ],
+      "section": 1,
+      "category": "Section 1"
+    },
+    {
+      "id": "S1-047",
+      "kanji": "北",
+      "meaning": "north",
+      "readings": [
+        "ほく",
+        "きた"
       ],
       "section": 1,
       "category": "Section 1"

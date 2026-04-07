@@ -6,7 +6,7 @@
     stars: "j1200k_stars_v1",
     stats: "j1200k_stats_v1",
     settings: "j1200k_settings_v1",
-    data: "j1200k_data_v4",
+    data: "j1200k_data_v5",
     multiTypingOff: "j1200k_multi_typing_off_v1"
   };
 
