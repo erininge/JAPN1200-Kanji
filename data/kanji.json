@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "items": [
     {
       "id": "S1-001",
@@ -512,6 +512,86 @@
       ],
       "section": 1,
       "category": "Section 1"
+    },
+    {
+      "id": "S2-001",
+      "kanji": "口",
+      "meaning": "mouth",
+      "readings": [
+        "こう",
+        "くち"
+      ],
+      "section": 2,
+      "category": "Section 2"
+    },
+    {
+      "id": "S2-002",
+      "kanji": "出",
+      "meaning": "to exit",
+      "readings": [
+        "しゅつ",
+        "で",
+        "だ"
+      ],
+      "section": 2,
+      "category": "Section 2"
+    },
+    {
+      "id": "S2-003",
+      "kanji": "右",
+      "meaning": "right",
+      "readings": [
+        "う",
+        "みぎ"
+      ],
+      "section": 2,
+      "category": "Section 2"
+    },
+    {
+      "id": "S2-004",
+      "kanji": "左",
+      "meaning": "left",
+      "readings": [
+        "さ",
+        "ひだり"
+      ],
+      "section": 2,
+      "category": "Section 2"
+    },
+    {
+      "id": "S2-005",
+      "kanji": "分",
+      "meaning": "minute; to divide",
+      "readings": [
+        "ふん",
+        "ぶん",
+        "わ"
+      ],
+      "section": 2,
+      "category": "Section 2"
+    },
+    {
+      "id": "S2-006",
+      "kanji": "先",
+      "meaning": "ahead",
+      "readings": [
+        "せん",
+        "さき"
+      ],
+      "section": 2,
+      "category": "Section 2"
+    },
+    {
+      "id": "S2-007",
+      "kanji": "生",
+      "meaning": "birth",
+      "readings": [
+        "せい",
+        "しょう",
+        "う"
+      ],
+      "section": 2,
+      "category": "Section 2"
     }
   ]
 }
