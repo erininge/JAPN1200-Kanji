@@ -1,5 +1,5 @@
 {
-  "version": 6,
+  "version": 7,
   "items": [
     {
       "id": "S1-001",
@@ -589,6 +589,73 @@
         "せい",
         "しょう",
         "う"
+      ],
+      "section": 2,
+      "category": "Section 2"
+    },
+    {
+      "id": "S2-008",
+      "kanji": "年",
+      "meaning": "year",
+      "readings": [
+        "ねん",
+        "とし"
+      ],
+      "section": 2,
+      "category": "Section 2"
+    },
+    {
+      "id": "S2-009",
+      "kanji": "外",
+      "meaning": "outside",
+      "readings": [
+        "がい",
+        "そと"
+      ],
+      "section": 2,
+      "category": "Section 2"
+    },
+    {
+      "id": "S2-010",
+      "kanji": "国",
+      "meaning": "country",
+      "readings": [
+        "こく",
+        "くに"
+      ],
+      "section": 2,
+      "category": "Section 2"
+    },
+    {
+      "id": "S2-011",
+      "kanji": "大",
+      "meaning": "big",
+      "readings": [
+        "だい",
+        "たい",
+        "おお"
+      ],
+      "section": 2,
+      "category": "Section 2"
+    },
+    {
+      "id": "S2-012",
+      "kanji": "学",
+      "meaning": "study; learning",
+      "readings": [
+        "がく",
+        "まな"
+      ],
+      "section": 2,
+      "category": "Section 2"
+    },
+    {
+      "id": "S2-013",
+      "kanji": "花",
+      "meaning": "flower",
+      "readings": [
+        "か",
+        "はな"
       ],
       "section": 2,
       "category": "Section 2"
