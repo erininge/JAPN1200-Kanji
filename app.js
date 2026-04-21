@@ -16,6 +16,30 @@
     multiTyping: "on"
   });
 
+  const SEMESTER_WORDS = [
+    { id: "VOC-001", kanji: "日本", meaning: "Japan", readings: ["にほん", "にっぽん"] },
+    { id: "VOC-002", kanji: "日本人", meaning: "Japanese person", readings: ["にほんじん"] },
+    { id: "VOC-003", kanji: "元気", meaning: "healthy; energetic", readings: ["げんき"] },
+    { id: "VOC-004", kanji: "大学", meaning: "university", readings: ["だいがく"] },
+    { id: "VOC-005", kanji: "外国", meaning: "foreign country", readings: ["がいこく"] },
+    { id: "VOC-006", kanji: "山田", meaning: "Yamada", readings: ["やまだ"] },
+    { id: "VOC-007", kanji: "田中", meaning: "Tanaka", readings: ["たなか"] },
+    { id: "VOC-008", kanji: "北口", meaning: "north exit", readings: ["きたぐち"] },
+    { id: "VOC-009", kanji: "南口", meaning: "south exit", readings: ["みなみぐち"] },
+    { id: "VOC-010", kanji: "日曜日", meaning: "Sunday", readings: ["にちようび"] },
+    { id: "VOC-011", kanji: "水曜日", meaning: "Wednesday", readings: ["すいようび"] },
+    { id: "VOC-012", kanji: "金曜日", meaning: "Friday", readings: ["きんようび"] },
+    { id: "VOC-013", kanji: "花見", meaning: "flower viewing", readings: ["はなみ"] },
+    { id: "VOC-014", kanji: "月見", meaning: "moon viewing", readings: ["つきみ"] }
+  ];
+  const SEMESTER_WORDS_BY_KANJI = SEMESTER_WORDS.reduce((acc, word) => {
+    Array.from(word.kanji).forEach((char) => {
+      if (!acc[char]) acc[char] = [];
+      acc[char].push(word);
+    });
+    return acc;
+  }, {});
+
   function loadJSON(key, fallback) {
     try {
       const raw = localStorage.getItem(key);
@@ -110,9 +134,15 @@
   function getPool() {
     const section = $("#selSection").value;
     const starOnly = $("#chkStarOnly").checked;
+    const includeWords = $("#chkIncludeWords").checked;
     let pool = items;
     if (section !== "all") pool = pool.filter(x => String(x.section) === section);
     if (starOnly) pool = pool.filter(x => isStarred(x.id));
+    if (includeWords) {
+      const chars = new Set(pool.map(item => item.kanji));
+      const words = SEMESTER_WORDS.filter((word) => Array.from(word.kanji).some(char => chars.has(char)));
+      pool = pool.concat(words.map((word) => ({ ...word, section: "Vocab", category: "Semester word" })));
+    }
     return pool.slice();
   }
   function autoQuestionCount(len) { return Math.max(5, Math.min(20, len)); }
@@ -133,7 +163,7 @@
     while (queue.length < qCount) queue.push(...usePool);
     queue = queue.slice(0, qCount);
 
-    session = { selMode, selAnswer, mcCount, total: qCount, curMode: "k2m", curAnswerType: "mc", mcPack: null };
+    session = { selMode, selAnswer, mcCount, total: qCount, curMode: "k2m", curAnswerType: "mc", mcPack: null, pool: pool.slice() };
     idx = 0; streak = 0; locked = false;
 
     $("#studySetup").classList.add("hidden");
@@ -164,10 +194,10 @@
     }
   }
 
-  function buildChoices(mode, item, count) {
+  function buildChoices(mode, item, count, sourcePool=items) {
     const correct = mode === "k2m" ? item.meaning : item.kanji;
     const field = mode === "k2m" ? "meaning" : "kanji";
-    const distractors = shuffle(items.filter(x => x.id !== item.id)).slice(0, Math.max(0, count-1));
+    const distractors = shuffle(sourcePool.filter(x => x.id !== item.id)).slice(0, Math.max(0, count-1));
     const opts = shuffle([correct, ...distractors.map(x => x[field])]).slice(0, count);
     if (!opts.includes(correct)) opts[Math.floor(Math.random()*opts.length)] = correct;
     return { correct, options: opts };
@@ -227,7 +257,7 @@
     renderStarsUI();
 
     if (answerType === "mc") {
-      const pack = buildChoices(mode, current, session.mcCount);
+      const pack = buildChoices(mode, current, session.mcCount, session.pool || items);
       session.mcPack = pack;
       renderAnswerUI("mc", pack);
     } else {
@@ -386,7 +416,10 @@
       list = list.filter(x =>
         x.kanji.includes(q) ||
         x.meaning.toLowerCase().includes(q) ||
-        (x.readings || []).some(r => r.toLowerCase().includes(q))
+        (x.readings || []).some(r => r.toLowerCase().includes(q)) ||
+        (SEMESTER_WORDS_BY_KANJI[x.kanji] || []).some(word =>
+          word.kanji.includes(q) || word.meaning.toLowerCase().includes(q) || (word.readings || []).some(r => r.includes(q))
+        )
       );
     }
     list.forEach(x => {
@@ -399,6 +432,8 @@
           <div class="bigKanji">${escapeHtml(x.kanji)}</div>
           <div>
             <div class="meaning">${escapeHtml(x.meaning)}</div>
+            <div class="small muted">Readings: ${escapeHtml((x.readings || []).join(" / ") || "—")}</div>
+            <div class="small muted">Vocab: ${escapeHtml((SEMESTER_WORDS_BY_KANJI[x.kanji] || []).map(word => word.kanji).join(" • ") || "—")}</div>
             <div class="tags">Section ${x.section} • ${escapeHtml(x.category || "")}</div>
             ${showMultiToggle ? `
             <label class="mini multiToggle">
