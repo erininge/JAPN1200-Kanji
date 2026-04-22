@@ -18,7 +18,7 @@
 
   const SEMESTER_WORDS = [
     { id: "VOC-001", kanji: "日本", meaning: "Japan", readings: ["にほん", "にっぽん"] },
-    { id: "VOC-002", kanji: "日本人", meaning: "Japanese person", readings: ["にほんじん"] },
+    { id: "VOC-002", kanji: "日本人", meaning: "Japanese person", readings: ["にほんじん", "にっぽんじん"] },
     { id: "VOC-003", kanji: "元気", meaning: "healthy; energetic", readings: ["げんき"] },
     { id: "VOC-004", kanji: "大学", meaning: "university", readings: ["だいがく"] },
     { id: "VOC-005", kanji: "外国", meaning: "foreign country", readings: ["がいこく"] },
@@ -205,6 +205,21 @@
 
   function escapeHtml(s) {
     return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+  }
+
+  function formatVocabWithReadings(kanji) {
+    const words = SEMESTER_WORDS_BY_KANJI[kanji] || [];
+    if (!words.length) return "—";
+    return words
+      .map((word) => `${word.kanji} (${(word.readings || []).join(" / ") || "—"})`)
+      .join(" • ");
+  }
+
+  function matchesVocabQuery(word, query) {
+    if (!query) return true;
+    return word.kanji.includes(query)
+      || word.meaning.toLowerCase().includes(query)
+      || (word.readings || []).some((reading) => reading.includes(query));
   }
 
   function renderAnswerUI(answerType, mcPack=null) {
@@ -433,7 +448,7 @@
           <div>
             <div class="meaning">${escapeHtml(x.meaning)}</div>
             <div class="small muted">Readings: ${escapeHtml((x.readings || []).join(" / ") || "—")}</div>
-            <div class="small muted">Vocab: ${escapeHtml((SEMESTER_WORDS_BY_KANJI[x.kanji] || []).map(word => word.kanji).join(" • ") || "—")}</div>
+            <div class="small muted">Vocab: ${escapeHtml(formatVocabWithReadings(x.kanji))}</div>
             <div class="tags">Section ${x.section} • ${escapeHtml(x.category || "")}</div>
             ${showMultiToggle ? `
             <label class="mini multiToggle">
@@ -457,7 +472,31 @@
       }
       host.appendChild(row);
     });
-    if (!list.length) host.innerHTML = `<div class="hint"><p class="small muted">No results.</p></div>`;
+
+    const kanjiSet = new Set(list.map((item) => item.kanji));
+    const vocabMatches = SEMESTER_WORDS.filter((word) => {
+      const containsVisibleKanji = Array.from(word.kanji).some((char) => kanjiSet.has(char));
+      if (!containsVisibleKanji) return false;
+      return matchesVocabQuery(word, q);
+    });
+
+    vocabMatches.forEach((word) => {
+      const row = document.createElement("div");
+      row.className = "itemRow";
+      row.innerHTML = `
+        <div class="left">
+          <div class="bigKanji">${escapeHtml(word.kanji)}</div>
+          <div>
+            <div class="meaning">${escapeHtml(word.meaning)}</div>
+            <div class="small muted">Readings: ${escapeHtml((word.readings || []).join(" / ") || "—")}</div>
+            <div class="tags">Semester vocab</div>
+          </div>
+        </div>
+      `;
+      host.appendChild(row);
+    });
+
+    if (!list.length && !vocabMatches.length) host.innerHTML = `<div class="hint"><p class="small muted">No results.</p></div>`;
   }
   $("#viewSearch").addEventListener("input", () => renderKanjiList());
   $("#viewStarOnly").addEventListener("change", () => renderKanjiList());
