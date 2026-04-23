@@ -215,11 +215,41 @@
       .join(" • ");
   }
 
-  function matchesVocabQuery(word, query) {
-    if (!query) return true;
-    return word.kanji.includes(query)
-      || word.meaning.toLowerCase().includes(query)
-      || (word.readings || []).some((reading) => reading.includes(query));
+  const QUERY_SYNONYMS = {
+    hot: ["fire", "warm", "heat"],
+    fire: ["hot", "flame", "burn"]
+  };
+
+  function expandQueryTokens(query) {
+    const baseTokens = String(query || "")
+      .toLowerCase()
+      .split(/\s+/)
+      .map((token) => token.trim())
+      .filter(Boolean);
+    const expanded = new Set(baseTokens);
+    baseTokens.forEach((token) => {
+      (QUERY_SYNONYMS[token] || []).forEach((synonym) => expanded.add(synonym));
+    });
+    return Array.from(expanded);
+  }
+
+  function itemSearchText(item) {
+    return [
+      item.kanji,
+      item.meaning,
+      ...((item.readings || []))
+    ].join(" ").toLowerCase();
+  }
+
+  function matchesTokens(item, tokens) {
+    if (!tokens.length) return true;
+    const text = itemSearchText(item);
+    return tokens.every((token) => text.includes(token));
+  }
+
+  function matchesVocabQuery(word, tokens) {
+    if (!tokens.length) return true;
+    return matchesTokens(word, tokens);
   }
 
   function renderAnswerUI(answerType, mcPack=null) {
@@ -233,6 +263,7 @@
 
     if (answerType === "mc") {
       const host = $("#mcGrid"); host.innerHTML = "";
+      host.classList.toggle("kanjiAnswers", session?.curMode === "m2k");
       const labels = ["1","2","3","4"];
       mcPack.options.forEach((opt, i) => {
         const btn = document.createElement("button");
@@ -422,20 +453,18 @@
 
   function renderKanjiList() {
     const q = ($("#viewSearch").value || "").trim().toLowerCase();
+    const queryTokens = expandQueryTokens(q);
     const starOnly = $("#viewStarOnly").checked;
     const host = $("#kanjiList");
     host.innerHTML = "";
     let list = items.slice();
     if (starOnly) list = list.filter(x => isStarred(x.id));
-    if (q) {
-      list = list.filter(x =>
-        x.kanji.includes(q) ||
-        x.meaning.toLowerCase().includes(q) ||
-        (x.readings || []).some(r => r.toLowerCase().includes(q)) ||
-        (SEMESTER_WORDS_BY_KANJI[x.kanji] || []).some(word =>
-          word.kanji.includes(q) || word.meaning.toLowerCase().includes(q) || (word.readings || []).some(r => r.includes(q))
-        )
-      );
+    if (queryTokens.length) {
+      list = list.filter((x) => {
+        if (matchesTokens(x, queryTokens)) return true;
+        const relatedWords = SEMESTER_WORDS_BY_KANJI[x.kanji] || [];
+        return relatedWords.some((word) => matchesVocabQuery(word, queryTokens));
+      });
     }
     list.forEach(x => {
       const showMultiToggle = hasMultipleMeanings(x);
@@ -475,9 +504,10 @@
 
     const kanjiSet = new Set(list.map((item) => item.kanji));
     const vocabMatches = SEMESTER_WORDS.filter((word) => {
+      if (queryTokens.length) return matchesVocabQuery(word, queryTokens);
       const containsVisibleKanji = Array.from(word.kanji).some((char) => kanjiSet.has(char));
       if (!containsVisibleKanji) return false;
-      return matchesVocabQuery(word, q);
+      return true;
     });
 
     vocabMatches.forEach((word) => {
