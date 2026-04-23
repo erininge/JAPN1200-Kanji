@@ -1,4 +1,4 @@
-const CACHE = "japn1200-kanji-v1.0.8-lesson2-additions";
+const CACHE = "japn1200-kanji-v1.0.9-search-synonyms-mobile-mc";
 const ASSETS = [
   "./",
   "./index.html",

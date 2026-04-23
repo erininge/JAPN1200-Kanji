@@ -200,6 +200,17 @@ kbd{
 }
 @media (max-width:720px){
   .mcGrid{grid-template-columns:1fr}
+  .mcGrid.kanjiAnswers{grid-template-columns:repeat(2, minmax(0, 1fr));}
+  .mcGrid.kanjiAnswers .mcBtn{
+    min-height:96px;
+    border-radius:14px;
+    align-items:center;
+  }
+  .mcGrid.kanjiAnswers .mcText{
+    font-size:32px;
+    line-height:1.05;
+    font-weight:900;
+  }
 }
 .mcBtn{
   text-align:left;
