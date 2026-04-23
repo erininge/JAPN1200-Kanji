@@ -226,11 +226,10 @@
       .split(/\s+/)
       .map((token) => token.trim())
       .filter(Boolean);
-    const expanded = new Set(baseTokens);
-    baseTokens.forEach((token) => {
-      (QUERY_SYNONYMS[token] || []).forEach((synonym) => expanded.add(synonym));
-    });
-    return Array.from(expanded);
+    return baseTokens.map((token) => ({
+      token,
+      alternatives: [token, ...(QUERY_SYNONYMS[token] || [])]
+    }));
   }
 
   function parseQueryGroups(query) {
@@ -250,7 +249,7 @@
 
   function matchesTokens(item, tokens) {
     const text = itemSearchText(item);
-    return tokens.every((token) => text.includes(token));
+    return tokens.every(({ alternatives }) => alternatives.some((option) => text.includes(option)));
   }
 
   function matchesAnyQueryGroup(item, queryGroups) {
