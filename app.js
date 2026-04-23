@@ -220,8 +220,8 @@
     fire: ["hot", "flame", "burn"]
   };
 
-  function expandQueryTokens(query) {
-    const baseTokens = String(query || "")
+  function tokenizeQueryChunk(chunk) {
+    const baseTokens = String(chunk || "")
       .toLowerCase()
       .split(/\s+/)
       .map((token) => token.trim())
@@ -233,6 +233,13 @@
     return Array.from(expanded);
   }
 
+  function parseQueryGroups(query) {
+    return String(query || "")
+      .split(/[,\n;、]+/)
+      .map((chunk) => tokenizeQueryChunk(chunk))
+      .filter((tokens) => tokens.length > 0);
+  }
+
   function itemSearchText(item) {
     return [
       item.kanji,
@@ -242,14 +249,17 @@
   }
 
   function matchesTokens(item, tokens) {
-    if (!tokens.length) return true;
     const text = itemSearchText(item);
     return tokens.every((token) => text.includes(token));
   }
 
-  function matchesVocabQuery(word, tokens) {
-    if (!tokens.length) return true;
-    return matchesTokens(word, tokens);
+  function matchesAnyQueryGroup(item, queryGroups) {
+    if (!queryGroups.length) return true;
+    return queryGroups.some((tokens) => matchesTokens(item, tokens));
+  }
+
+  function matchesVocabQuery(word, queryGroups) {
+    return matchesAnyQueryGroup(word, queryGroups);
   }
 
   function renderAnswerUI(answerType, mcPack=null) {
@@ -453,17 +463,17 @@
 
   function renderKanjiList() {
     const q = ($("#viewSearch").value || "").trim().toLowerCase();
-    const queryTokens = expandQueryTokens(q);
+    const queryGroups = parseQueryGroups(q);
     const starOnly = $("#viewStarOnly").checked;
     const host = $("#kanjiList");
     host.innerHTML = "";
     let list = items.slice();
     if (starOnly) list = list.filter(x => isStarred(x.id));
-    if (queryTokens.length) {
+    if (queryGroups.length) {
       list = list.filter((x) => {
-        if (matchesTokens(x, queryTokens)) return true;
+        if (matchesAnyQueryGroup(x, queryGroups)) return true;
         const relatedWords = SEMESTER_WORDS_BY_KANJI[x.kanji] || [];
-        return relatedWords.some((word) => matchesVocabQuery(word, queryTokens));
+        return relatedWords.some((word) => matchesVocabQuery(word, queryGroups));
       });
     }
     list.forEach(x => {
@@ -504,7 +514,7 @@
 
     const kanjiSet = new Set(list.map((item) => item.kanji));
     const vocabMatches = SEMESTER_WORDS.filter((word) => {
-      if (queryTokens.length) return matchesVocabQuery(word, queryTokens);
+      if (queryGroups.length) return matchesVocabQuery(word, queryGroups);
       const containsVisibleKanji = Array.from(word.kanji).some((char) => kanjiSet.has(char));
       if (!containsVisibleKanji) return false;
       return true;
