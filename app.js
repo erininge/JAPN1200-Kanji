@@ -373,12 +373,20 @@
     return !multiTypingOff.has(item.id);
   }
   function normalizeTyping(s) { return String(s).trim().replace(/\s+/g," ").toLowerCase(); }
+
+  function isVocabItem(item) {
+    return String(item?.id || "").startsWith("VOC-") || String(item?.section || "") === "Vocab";
+  }
+  function requiresMeaningAndReading(item, mode) {
+    return mode === "k2m" && isVocabItem(item) && Array.isArray(item?.readings) && item.readings.length;
+  }
   function renderTypingInputs() {
     const host = $("#typingInputs");
     host.innerHTML = "";
     const mode = session?.curMode;
-    const useMulti = current && isMultiTypingActive(current, mode);
-    const inputsNeeded = useMulti ? splitMeanings(current.meaning).length : 1;
+    const useVocabDual = current && requiresMeaningAndReading(current, mode);
+    const useMulti = !useVocabDual && current && isMultiTypingActive(current, mode);
+    const inputsNeeded = useVocabDual ? 2 : (useMulti ? splitMeanings(current.meaning).length : 1);
     for (let i = 0; i < inputsNeeded; i += 1) {
       const input = document.createElement("input");
       input.className = "typingInput";
@@ -386,7 +394,11 @@
       input.autocorrect = "off";
       input.autocapitalize = "off";
       input.spellcheck = false;
-      input.placeholder = inputsNeeded > 1 ? `Answer ${i + 1}` : "Type your answer…";
+      if (useVocabDual) {
+        input.placeholder = i === 0 ? "Meaning (English)" : "Reading (hiragana)";
+      } else {
+        input.placeholder = inputsNeeded > 1 ? `Answer ${i + 1}` : "Type your answer…";
+      }
       host.appendChild(input);
     }
     const first = host.querySelector("input");
@@ -396,17 +408,21 @@
     if (!session || locked) return;
     const mode = session.curMode;
     const expected = mode === "k2m" ? current.meaning : current.kanji;
+    const inputs = $$("#typingInputs input").map(input => normalizeTyping(input.value));
     let ok = false;
-    if (mode === "k2m" && isMultiTypingActive(current, mode)) {
+    if (mode === "k2m" && requiresMeaningAndReading(current, mode)) {
+      const meaningOk = splitMeanings(expected).some(part => normalizeTyping(part) === (inputs[0] || ""));
+      const expectedReadings = (current.readings || []).map(reading => normalizeTyping(reading));
+      const readingOk = expectedReadings.includes(inputs[1] || "");
+      ok = meaningOk && readingOk;
+    } else if (mode === "k2m" && isMultiTypingActive(current, mode)) {
       const expectedParts = splitMeanings(expected).map(part => normalizeTyping(part));
-      const inputs = $$("#typingInputs input").map(input => normalizeTyping(input.value));
       const uniqueInputs = new Set(inputs.filter(Boolean));
       ok = inputs.length === expectedParts.length
         && inputs.every(val => expectedParts.includes(val))
         && uniqueInputs.size === expectedParts.length;
     } else {
-      const got = $$("#typingInputs input")[0]?.value || "";
-      const normalized = normalizeTyping(got);
+      const normalized = inputs[0] || "";
       ok = mode === "k2m"
         ? splitMeanings(expected).some(part => normalizeTyping(part) === normalized)
         : normalizeTyping(expected) === normalized;
@@ -418,12 +434,14 @@
       markFeedback(true);
     } else {
       streak = 0;
-      markFeedback(false, `Answer: ${expected}`);
+      const answerText = mode === "k2m" && requiresMeaningAndReading(current, mode)
+        ? `${expected} • ${(current.readings || []).join(" / ")}`
+        : expected;
+      markFeedback(false, `Answer: ${answerText}`);
     }
     markStat(current.id, current.section, ok);
     $("#btnNext").disabled = false;
   }
-
   $("#btnCheck").addEventListener("click", () => checkTyping());
   $("#btnNext").addEventListener("click", () => { if (!session) return; idx += 1; locked = false; nextQuestion(); });
   $("#btnStart").addEventListener("click", () => startSession());
