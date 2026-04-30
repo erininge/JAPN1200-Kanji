@@ -434,9 +434,12 @@
       markFeedback(true);
     } else {
       streak = 0;
-      const answerText = mode === "k2m" && requiresMeaningAndReading(current, mode)
-        ? `${expected} • ${(current.readings || []).join(" / ")}`
-        : expected;
+      const readingsText = Array.isArray(current?.readings) && current.readings.length
+        ? (current.readings || []).join(" / ")
+        : "";
+      const answerText = mode === "k2m"
+        ? `${expected}${readingsText ? ` • ${readingsText}` : ""}`
+        : `${expected}${readingsText ? ` • Reading: ${readingsText}` : ""}`;
       markFeedback(false, `Answer: ${answerText}`);
     }
     markStat(current.id, current.section, ok);
