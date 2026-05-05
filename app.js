@@ -114,6 +114,7 @@
   let session = null;
   let queue = [], idx = 0, streak = 0;
   let current = null;
+  let currentEntry = null;
   let locked = false;
 
   function shuffle(a) {
@@ -145,7 +146,7 @@
     }
     return pool.slice();
   }
-  function autoQuestionCount(len) { return Math.max(5, Math.min(20, len)); }
+  function autoQuestionCount(len) { return len; }
 
   function startSession() {
     const pool = getPool();
@@ -161,9 +162,12 @@
     const usePool = shuffle(pool.slice());
     queue = [];
     while (queue.length < qCount) queue.push(...usePool);
-    queue = queue.slice(0, qCount);
+    queue = queue.slice(0, qCount).map((item) => ({ item, review: false }));
 
-    session = { selMode, selAnswer, mcCount, total: qCount, curMode: "k2m", curAnswerType: "mc", mcPack: null, pool: pool.slice() };
+    session = {
+      selMode, selAnswer, mcCount, total: qCount, curMode: "k2m", curAnswerType: "mc", mcPack: null,
+      pool: pool.slice(), missesById: {}, reviewCount: 0
+    };
     idx = 0; streak = 0; locked = false;
 
     $("#studySetup").classList.add("hidden");
@@ -173,10 +177,11 @@
   }
 
   function stopSession() {
-    session = null; queue = []; current = null;
+    session = null; queue = []; current = null; currentEntry = null;
     $("#studySetup").classList.remove("hidden");
     $("#studySession").classList.add("hidden");
     $("#feedback").textContent = ""; $("#feedback").className = "feedback";
+    renderReviewNotice(null);
     $("#btnNext").disabled = true;
     const inputs = $$("#typingInputs input");
     inputs.forEach(input => { input.value = ""; });
@@ -261,6 +266,53 @@
     return matchesAnyQueryGroup(word, queryGroups);
   }
 
+  function randomReviewDelay() {
+    return 3 + Math.floor(Math.random() * 3);
+  }
+
+  function queueEntryFor(item, overrides={}) {
+    return { item, review: false, missCount: 0, ...overrides };
+  }
+
+  function scheduleMissedReview(item) {
+    if (!session || !item) return { delay: 0, position: queue.length };
+    const delay = randomReviewDelay();
+    const misses = session.missesById[item.id] || 0;
+    const position = idx + delay + 1;
+    const fillerPool = (session.pool || items).filter((candidate) => candidate.id !== item.id);
+    while (queue.length < position) {
+      const source = fillerPool.length ? fillerPool : (session.pool || items);
+      const filler = source[Math.floor(Math.random() * source.length)];
+      if (!filler) break;
+      queue.push(queueEntryFor(filler));
+    }
+    queue.splice(position, 0, queueEntryFor(item, {
+      review: true,
+      missCount: misses,
+      delay,
+      originalQuestionNumber: idx + 1,
+      mode: session.curMode,
+      answerType: session.curAnswerType
+    }));
+    session.reviewCount += 1;
+    session.total = queue.length;
+    return { delay, position };
+  }
+
+  function renderReviewNotice(entry) {
+    const notice = $("#reviewNotice");
+    if (!notice) return;
+    if (!entry?.review) {
+      notice.classList.add("hidden");
+      notice.textContent = "";
+      return;
+    }
+    const missCount = Math.max(1, entry.missCount || 1);
+    const times = missCount === 1 ? "1 time" : `${missCount} times`;
+    notice.textContent = `🔁 You missed this before (${times}). Let’s try it again!`;
+    notice.classList.remove("hidden");
+  }
+
   function renderAnswerUI(answerType, mcPack=null) {
     $("#mcArea").classList.toggle("hidden", answerType !== "mc");
     $("#typingArea").classList.toggle("hidden", answerType !== "typing");
@@ -298,16 +350,21 @@
       $("#feedback").textContent = "";
       $("#btnNext").disabled = true;
       current = null;
+      currentEntry = null;
+      renderReviewNotice(null);
       return;
     }
 
-    current = queue[idx];
-    const mode = pickMode(session.selMode);
-    const answerType = pickAnswerType(session.selAnswer);
+    currentEntry = queue[idx];
+    current = currentEntry.item || currentEntry;
+    const mode = currentEntry.mode || pickMode(session.selMode);
+    const answerType = currentEntry.answerType || pickAnswerType(session.selAnswer);
     session.curMode = mode;
     session.curAnswerType = answerType;
 
+    session.total = queue.length;
     $("#sessionProgress").textContent = `Question ${idx+1}/${session.total} • Streak ${streak}`;
+    renderReviewNotice(currentEntry);
     setPrompt(mode, current);
     renderStarsUI();
 
@@ -345,7 +402,9 @@
       streak = 0;
       const wrongBtn = buttons.find(btn => btn.dataset.option === chosen);
       if (wrongBtn) wrongBtn.classList.add("wrong");
-      markFeedback(false, `Answer: ${pack.correct}`);
+      session.missesById[current.id] = (session.missesById[current.id] || 0) + 1;
+      const review = scheduleMissedReview(current);
+      markFeedback(false, `Answer: ${pack.correct} • I’ll bring this back in ${review.delay} questions.`);
     }
     markStat(current.id, current.section, ok);
 
@@ -440,7 +499,9 @@
       const answerText = mode === "k2m"
         ? `${expected}${readingsText ? ` • ${readingsText}` : ""}`
         : `${expected}${readingsText ? ` • Reading: ${readingsText}` : ""}`;
-      markFeedback(false, `Answer: ${answerText}`);
+      session.missesById[current.id] = (session.missesById[current.id] || 0) + 1;
+      const review = scheduleMissedReview(current);
+      markFeedback(false, `Answer: ${answerText} • I’ll bring this back in ${review.delay} questions.`);
     }
     markStat(current.id, current.section, ok);
     $("#btnNext").disabled = false;
